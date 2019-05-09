@@ -5,26 +5,34 @@ import {getStyles} from "../instruments";
 import { api } from "../API";
 import cx from "classnames";
 
+const sortUtility = (a, b, filter) => {
+  if (filter === "DESC") return b -a;
+
+  return a -b;
+};
+
 export const Kinoafisha = () => {
   const [selectedFilter, setSelectedFilter] = useState("upcoming");
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState("");
+  const [displayFilter, setDisplayFilter] = useState("DESC");
 
   const styles = getStyles({
     selectedFilter
   });
 
   useEffect(() => {
-    const getMoviesByFilter = async () => {
-      const newMovies = await api.getMovies(selectedFilter);
+  const getMoviesByFilter = async () => {
+    const newMovies = await api.getMovies(selectedFilter);
+    console.log(newMovies);
 
-      setMovies(newMovies);
-    };
+    setMovies(newMovies);
+  };
 
-    getMoviesByFilter();
+  getMoviesByFilter();
   }, [selectedFilter]);
 
-  const moviesJSX = movies.map(movie => {
+  const moviesJSX = movies.sort((a, b) => sortUtility(a.release, b.release, displayFilter)).map(movie => {
     const posterStyle = cx("poster", {
       selectedPoster: movie.id === selectedMovie
     });
@@ -79,13 +87,24 @@ export const Kinoafisha = () => {
         </div>
       </div>
 
+      <div className="sorting">
+        <button
+          className=""
+          onClick={() => setDisplayFilter(displayFilter === "DESC" ? "ASC" : "DESC")}
+        >
+          по новизне
+        </button>
+      </div>
+
       <div className="content">
         {moviesJSX}
       </div>
 
       <div className="footer">
         <a href="mailto:team@lectrum.io">team@lectrum.io</a>
-        <span>2019 © Все права защищены. Разработано с любовью в&nbsp; <a href="https://lectrum.io/intensive/react" rel="noreferrer noopener" target="_blank">Лектруме</a>.</span>
+        <span>
+          2019 © Все права защищены. Разработано с любовью в&nbsp; <a href="https://lectrum.io/intensive/react" rel="noreferrer noopener" target="_blank">Лектруме</a>.
+        </span>
         <div className="social">
           <a className="facebook" href="https://www.facebook.com/lectrum/" rel="noreferrer noopener" target="_blank"/>
           <a className="telegram" href="https://t.me/lectrum" rel="noreferrer noopener" target="_blank"/>
